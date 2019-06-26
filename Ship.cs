@@ -1,14 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace StarshipTycoon {
     class Ship {
         InputHandler inputHander = InputHandler.Instance;
         private Texture2D texture;
+        public String name { get; set; }
         public double x { get; set; }
         public double y { get; set; }
         public int width { get; set; }
@@ -20,18 +18,19 @@ namespace StarshipTycoon {
         public Planet dest { get; set; }
         public bool needNewDest { get; set; }
         public Rectangle rect { get; set; }
+        public bool isDocked { get; set; }
+        private Color color;
 
         //TODO: Make this base class so we don't have to pass in specifics for each ship type
-        public Ship(Texture2D texture, int x, int y, int width, int height, double speed, Planet destination, int fuelCapacity) {
+        public Ship(String name, Texture2D texture, int x, int y, int width, int height, double speed, int fuelCapacity, Color color) {
+            this.name = name;
             this.texture = texture;
             this.x = x;
             this.y = y;
             this.width = width;
             this.height = height;
             this.speed = speed;
-            dest = destination;
-
-            updateAngle();
+            this.color = color;
 
             this.fuelCapacity = fuelCapacity;
             this.fuelRemaining = fuelCapacity;
@@ -39,9 +38,12 @@ namespace StarshipTycoon {
 
         public void draw(SpriteBatch sb) {
             sb.Draw(texture, new Rectangle(rect.X + width / 2, rect.Y + height / 2, width, height), 
-                null, Color.White, (float)angle, new Vector2(texture.Width / 2, texture.Height / 2),
+                null, color, (float)angle, new Vector2(texture.Width / 2, texture.Height / 2),
                 SpriteEffects.None, 0f);
-            drawLine(sb);
+
+            if (!isDocked) {
+                drawLine(sb);
+            }
         }
 
         //TODO: Uhhh, does this belong here?
@@ -62,31 +64,31 @@ namespace StarshipTycoon {
                 new Vector2(0, 0), // point in line about which to rotate
                 SpriteEffects.None,
                 0);
-
         }
 
-        public void update(List<Planet> planets) {
-            move();
+        public void update() {
             if (needNewDest) {
-                //TODO: Fix this so it doesn't constantly add when ship is out of fuel
-                dest.timesVisited++;
+                dest = PlanetUtil.getDestination(this);
 
-                List<Planet> validPlanets = planets.FindAll(p => {
-                    return p.rectangle.Center != dest.rectangle.Center &&
-                    (p.rectangle.Location.ToVector2() - rect.Location.ToVector2()).Length() <= fuelRemaining;
-                });
-
-                if (validPlanets.Any()) {
-                    int index = new Random().Next(validPlanets.Count);
-
-                    this.dest = validPlanets[index];
-
+                if (dest != null) {
+                    isDocked = false;
                     updateAngle();
                 }
             }
+
+            if (!isDocked) {
+                move();
+            }
         }
 
-        private void updateAngle() {
+        //TODO: Flesh this out
+        public int sellCargo() {
+            int moneyMade = new Random().Next(10);
+            Console.Out.WriteLine(this.name + " made " + moneyMade + " creds!");
+            return moneyMade;
+        }
+
+        public void updateAngle() {
             angle = Math.Atan2(y - dest.rectangle.Center.Y, x - dest.rectangle.Center.X) + Math.PI / 2;
         }
 
@@ -133,7 +135,10 @@ namespace StarshipTycoon {
 
             //NOTE: Enable to auto-get new destination
             needNewDest = xArrived && yArrived;
-            if (xArrived && yArrived) {
+
+            if (xArrived && yArrived && !isDocked) {
+                isDocked = true;
+                dest.timesVisited++;
                 angle = 0;
             }
         }
