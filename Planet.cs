@@ -22,7 +22,9 @@ namespace StarshipTycoon {
         }
 
         public void Draw(SpriteBatch sb) {
-            sb.Draw(texture, new Rectangle(x, y, width, height), color);
+            sb.Draw(texture, rectangle, color);
+            sb.Draw(texture, new Rectangle(rectangle.X, rectangle.Y + height / 2, width, 1), Color.Pink);
+            sb.Draw(texture, new Rectangle(rectangle.X + width / 2, rectangle.Y, 1, height), Color.Pink);
         }
     }
 }

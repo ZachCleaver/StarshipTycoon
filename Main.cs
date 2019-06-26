@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace StarshipTycoon {
     /// <summary>
@@ -17,6 +18,7 @@ namespace StarshipTycoon {
         List<Ship> ships = new List<Ship>();
         int screenHeight, screenWidth;
         int planetSize = 15;
+        int planetNum = 5;
         InputHandler inputHander = InputHandler.Instance;
         bool isPaused = false;
 
@@ -35,7 +37,7 @@ namespace StarshipTycoon {
 
             Random rand = new Random();
 
-            for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < planetNum; i++) {
                 Color randColor = new Color(rand.Next(256), rand.Next(256), rand.Next(256));
                 Planet planet = new Planet(whiteSquare, rand.Next(screenWidth - planetSize), rand.Next(screenHeight - planetSize),
                     planetSize, planetSize, randColor, i.ToString());
@@ -76,34 +78,30 @@ namespace StarshipTycoon {
 
                 if (inputHander.wasLeftButtonClicked()) {
                     foreach (Planet planet in planets) {
-                        if (planet.rectangle.Intersects(inputHander.rectangle)) {
-                            Ship ship = new Ship(whiteSquare, planet.rectangle.X, planet.rectangle.Y, 3, 5, 2);
-                            //TODO: Add planet width and height to get center of rect
+                        if (planet.rectangle.Intersects(inputHander.rectangle)) { 
                             List<Planet> validPlanets = planets.FindAll(p => p != planet);
                             int index = new Random().Next(validPlanets.Count);
 
                             Planet dest = validPlanets[index];
+                            Point planetCenter = planet.rectangle.Center;
 
-                            ship.angle = Math.Atan2(planet.rectangle.Y - dest.rectangle.Y, planet.rectangle.X - dest.rectangle.X) + Math.PI / 2;
-                            ship.dest = dest;
-                            ships.Add(ship);
+                            ships.Add(new Ship(whiteSquare, planetCenter.X, planetCenter.Y, 3, 5, 2, dest, 1000));
                         }
                     }
                 }
 
-                foreach (Ship ship in ships) {
-                    ship.Update();
-                    if (ship.needNewDest) {
-                        ship.dest.timesVisited++;
-
-                        List<Planet> validPlanets = planets.FindAll(p => p.rectangle.Location != ship.dest.rectangle.Center);
-                        int index = new Random().Next(validPlanets.Count);
-
-                        Planet dest = validPlanets[index];
-
-                        ship.angle = Math.Atan2(ship.y - dest.rectangle.Y, ship.x - dest.rectangle.X) + Math.PI / 2;
-                        ship.dest = dest;
+                if (inputHander.wasKeyPressedAndReleased(Keys.Down)) {
+                    foreach(Ship ship in ships) {
+                        ship.speed--;
                     }
+                } else if (inputHander.wasKeyPressedAndReleased(Keys.Up)) {
+                    foreach (Ship ship in ships) {
+                        ship.speed++;
+                    }
+                }
+
+                foreach (Ship ship in ships) {
+                    ship.update(planets);
                 }
             }
 
@@ -133,7 +131,7 @@ namespace StarshipTycoon {
                     }
                 }
                 foreach (Ship ship in ships) {
-                    ship.Draw(spriteBatch);
+                    ship.draw(spriteBatch);
                 }
             }
             spriteBatch.End();
