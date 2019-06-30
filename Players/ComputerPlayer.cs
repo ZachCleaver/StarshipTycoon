@@ -1,23 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
+using StarshipTycoon.Players;
 
 namespace StarshipTycoon {
-    class Player {
-        public List<Ship> ships { get; set; }
-        public int money { get; set; }
+    class ComputerPlayer : BasePlayer {
 
-        public Player() {
-            ships = new List<Ship>();
-            money = 1000;
-        }
-
-        public void update() {
+        public override void update() {
             ships.ForEach(ship => {
                 ship.update();
                 if (ship.isDocked) {
-                    purchaseFuel(ship);
+                    if (!ship.marketStepComplete) {
+                        purchaseFuel(ship);
+                        ship.marketStepComplete = true;
+                    }
+                    //Even though these are market steps, there could be a case where
+                    //the player has no money for the ship to buy items, but another
+                    //ship hasn't reached port and sold their items yet. Just because
+                    //we don't have money now doesn't mean another ship won't make some.
                     money += ship.sellCargo();
+                    money = ship.buyCargo(money);
                 }
             });
         }
@@ -34,7 +35,7 @@ namespace StarshipTycoon {
             }
         }
 
-        public void draw(SpriteBatch spriteBatch) {
+        public override void draw(SpriteBatch spriteBatch) {
             ships.ForEach(ship => ship.draw(spriteBatch));
         }
     }

@@ -14,3 +14,4 @@ bin/*
 .vs/StarshipTycoon/v15/.suo
 *.user
 *.csproj
+StarshipTycoon.csproj

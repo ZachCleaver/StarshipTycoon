@@ -1,21 +1,21 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using StarshipTycoon.Utils;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace StarshipTycoon {
     public class Main : Game {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        SpriteFont text;
+        SpriteFont font;
         Random random = new Random();
 
         Texture2D whiteSquare;
 
         Player human = new Player();
-        Player ai = new Player();
+        ComputerPlayer ai = new ComputerPlayer();
         List<Planet> planets = new List<Planet>();
         int screenHeight, screenWidth;
         int planetSize = 15;
@@ -30,9 +30,14 @@ namespace StarshipTycoon {
 
         protected override void Initialize() {
             this.IsMouseVisible = true;
+
+            this.graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            this.graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+
             //graphics.ToggleFullScreen();
+
             whiteSquare = Content.Load<Texture2D>("WhiteSquare");
-            text = Content.Load<SpriteFont>("text");
+            font = Content.Load<SpriteFont>("text");
             screenHeight = GraphicsDevice.Viewport.Height;
             screenWidth = GraphicsDevice.Viewport.Width;
 
@@ -44,6 +49,9 @@ namespace StarshipTycoon {
             }
 
             PlanetUtil.init(ref planets);
+            DrawUtil.init(whiteSquare);
+
+            ShipInfo.setTexture(whiteSquare, font);
 
             base.Initialize();
         }
@@ -62,8 +70,9 @@ namespace StarshipTycoon {
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime) {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape)) {
                 Exit();
+            }
 
             inputHandler.update();
 
@@ -78,37 +87,30 @@ namespace StarshipTycoon {
                 }
 
                 //AI Ship
-                if (inputHandler.wasLeftButtonClicked()) {
-                    foreach (Planet planet in planets) {
-                        if (planet.rectangle.Intersects(inputHandler.rectangle)) {
-                            Point planetCenter = planet.rectangle.Center;
-                            Ship ship = new Ship("AI " + ai.ships.Count, whiteSquare, planetCenter.X, planetCenter.Y, 3, 5, 2, 1000, Color.White);
+                //if (inputHandler.wasLeftButtonClicked()) {
+                //    foreach (Planet planet in planets) {
+                //        if (planet.rectangle.Intersects(inputHandler.rectangle)) {
+                //            Point planetCenter = planet.rectangle.Center;
+                //            Ship ship = new Ship("AI " + ai.ships.Count, whiteSquare, planetCenter.X, planetCenter.Y, 3, 5, 2, 1000, Color.White);
 
-                            //Well this is weird. Have to set init planet as the one we clicked so that our
-                            //new destination isn't set to the same planet.
-                            //TODO: Make this better
-                            ship.dest = planet;
-                            ship.dest = PlanetUtil.getDestination(ship);
-                            ship.updateAngle(); //TODO: I don't like how this is stuck out here instead of being a private method
+                //            //Well this is weird. Have to set init planet as the one we clicked so that our
+                //            //new destination isn't set to the same planet.
+                //            //TODO: Make this better
+                //            ship.dest = planet;
+                //            ship.dest = PlanetUtil.getDestination(ship);
+                //            ship.updateAngle(); //TODO: I don't like how this is stuck out here instead of being a private method
 
-                            ai.ships.Add(ship);
-                        }
-                    }
-                }
+                //            ai.ships.Add(ship);
+                //        }
+                //    }
+                //}
 
                 //Human ship
                 if (inputHandler.wasRightButtonClicked()) {
                     foreach (Planet planet in planets) {
                         if (planet.rectangle.Intersects(inputHandler.rectangle)) {
                             Point planetCenter = planet.rectangle.Center;
-                            Ship ship = new Ship("Human " + human.ships.Count, whiteSquare, planetCenter.X, planetCenter.Y, 3, 5, 2, 1000, Color.Black);
-
-                            //Well this is weird. Have to set init planet as the one we clicked so that our
-                            //new destination isn't set to the same planet.
-                            //TODO: Make this better
-                            ship.dest = planet;
-                            ship.dest = PlanetUtil.getDestination(ship);
-                            ship.updateAngle(); //TODO: I don't like how this is stuck out here instead of being a private method
+                            Ship ship = new Ship("Human " + human.ships.Count, whiteSquare, planet, 3, 5, 2, 1000, Color.Black);
 
                             human.ships.Add(ship);
                         }
@@ -141,16 +143,16 @@ namespace StarshipTycoon {
             //TODO: I guess make some states
             if (isPaused) {
                 for (int p = 0; p < planets.Count; p++) {
-                    spriteBatch.DrawString(text, planets[p].name + " visited: " + planets[p].timesVisited, new Vector2(100 * (int)(p / 30), p * 12 % screenHeight), Color.Pink);
+                    spriteBatch.DrawString(font, planets[p].name + " visited: " + planets[p].timesVisited, new Vector2(100 * (int)(p / 30), p * 12 % screenHeight), Color.Pink);
                 }
-                spriteBatch.DrawString(text, "Human money: " + human.money, new Vector2(400, 40), Color.Green);
-                spriteBatch.DrawString(text, "AI money: " + ai.money, new Vector2(400, 80), Color.Green);
+                spriteBatch.DrawString(font, "Human money: " + human.money, new Vector2(400, 40), Color.Green);
+                spriteBatch.DrawString(font, "AI money: " + ai.money, new Vector2(400, 80), Color.Green);
             } else {
 
                 foreach (Planet planet in planets) {
                     planet.Draw(spriteBatch);
                     if (inputHandler.rectangle.Intersects(planet.rectangle)) {
-                        spriteBatch.DrawString(text, planet.rectangle.X + ", " + planet.rectangle.Y, planet.rectangle.Location.ToVector2(), Color.Green);
+                        spriteBatch.DrawString(font, planet.rectangle.X + ", " + planet.rectangle.Y, planet.rectangle.Location.ToVector2(), Color.Green);
                     }
                 }
 
@@ -159,7 +161,7 @@ namespace StarshipTycoon {
 
                 human.ships.ForEach(ship => {
                     if (inputHandler.rectangle.Intersects(ship.rect)) {
-                        spriteBatch.DrawString(text, "Fuel: " + ship.fuelRemaining, ship.rect.Center.ToVector2(), Color.Black);
+                        spriteBatch.DrawString(font, "Fuel: " + ship.fuelRemaining, ship.rect.Center.ToVector2(), Color.Black);
                     }
                 });
             }
