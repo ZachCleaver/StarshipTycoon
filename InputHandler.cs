@@ -57,11 +57,15 @@ namespace StarshipTycoon {
         /// Returns whether the left mouse button was pressed and released.
         /// </summary>
         /// <returns>True if left mouse button is clicked.</returns>
-        public Boolean wasLeftButtonClicked() {
+        public bool wasLeftButtonClicked() {
             return (Instance.mouse.LeftButton == ButtonState.Released && Instance.oldMouse.LeftButton == ButtonState.Pressed);
         }
 
-        public Boolean wasRightButtonClicked() {
+        public bool wasLeftButtonClickedAndHeld() {
+            return (Instance.mouse.LeftButton == ButtonState.Pressed && Instance.oldMouse.LeftButton == ButtonState.Pressed);
+        }
+
+        public bool wasRightButtonClicked() {
             return (Instance.mouse.RightButton == ButtonState.Released && Instance.oldMouse.RightButton == ButtonState.Pressed);
         }
 
@@ -70,7 +74,7 @@ namespace StarshipTycoon {
         /// </summary>
         /// <param name="key">Key to check for.</param>
         /// <returns></returns>
-        public Boolean wasKeyPressedAndReleased(Keys key) {
+        public bool wasKeyPressedAndReleased(Keys key) {
             return (oldBoard.IsKeyDown(key) && board.IsKeyUp(key));
         }
 
@@ -79,7 +83,7 @@ namespace StarshipTycoon {
         /// </summary>
         /// <param name="key">Key to check for.</param>
         /// <returns></returns>
-        public Boolean wasKeyPressedAndHeld(Keys key) {
+        public bool wasKeyPressedAndHeld(Keys key) {
             return (oldBoard.IsKeyDown(key) && board.IsKeyDown(key));
         }
     }
