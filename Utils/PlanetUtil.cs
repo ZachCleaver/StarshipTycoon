@@ -45,12 +45,12 @@ namespace StarshipTycoon.Utils {
         }
 
         public static Planet getPlanetMouseHoveringOver() {
-            return planets.Find(planet => planet.rectangle.Intersects(InputHandler.Instance.rectangle));
+            return planets.Find(planet => planet.getCollisionRectangle().Intersects(InputHandler.Instance.rectangle));
         }
 
         public static bool isPlanetInRange(Planet planet, Ship ship) {
-            double distanceBetween = Math.Sqrt(Math.Pow(planet.rectangle.Center.X - ship.rect.Center.X, 2) +
-                Math.Pow(planet.rectangle.Center.Y - ship.rect.Center.Y, 2));
+            double distanceBetween = Math.Sqrt(Math.Pow(planet.getDrawingRectangle().Center.X - ship.getDrawingRectangle().Center.X, 2) +
+                Math.Pow(planet.getDrawingRectangle().Center.Y - ship.getDrawingRectangle().Center.Y, 2));
             //TODO: Is there a better way to do this fuel check?
             return distanceBetween <= ship.fuelRemaining;
         }

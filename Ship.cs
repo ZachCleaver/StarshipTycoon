@@ -20,7 +20,7 @@ namespace StarshipTycoon {
         //TODO: Should this be a vector? We only care about center and timesVisited
         public Planet dest { get; set; }
         public bool needNewDest { get; set; }
-        public Rectangle rect { get; set; }
+        private RectangleExtension rect;
         public bool isDocked { get; set; }
         private Color color;
         private List<Item> cargo;
@@ -32,11 +32,11 @@ namespace StarshipTycoon {
             this.texture = texture;
             this.dest = startingPlanet;
 
-            this.x = startingPlanet.rectangle.Center.X;
-            this.y = startingPlanet.rectangle.Center.Y;
+            this.x = startingPlanet.getDrawingRectangle().Center.X;
+            this.y = startingPlanet.getDrawingRectangle().Center.Y;
             this.width = width;
             this.height = height;
-            this.rect = new Rectangle((int)x, (int)y, width, height);
+            this.rect = new RectangleExtension((int)x, (int)y, width, height);
 
             this.speed = speed;
             this.color = color;
@@ -57,10 +57,16 @@ namespace StarshipTycoon {
 
         public void draw(SpriteBatch sb) {
             if (!isDocked) {
-                DrawUtil.drawLine(sb, rect.Center.ToVector2(), dest.rectangle.Center.ToVector2(), angle + Math.PI / 2);
+                //TODO: C'mon, you know this is janky
+                sb.End();
+                sb.Begin();
+                DrawUtil.drawLine(sb, rect.getCollisionRectangle().Center.ToVector2(), dest.getCollisionRectangle().Center.ToVector2(), angle + Math.PI / 2);
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, null,
+                null, null, null, null, Globals.camera.TranslationMatrix);
             }
 
-            sb.Draw(texture, new Rectangle(rect.X + width / 2, rect.Y + height / 2, width, height), 
+            sb.Draw(texture, new Rectangle(rect.getDrawingRectangle().X + width / 2, rect.getDrawingRectangle().Y + height / 2, width, height), 
                 null, color, (float)angle, new Vector2(texture.Width / 2, texture.Height / 2),
                 SpriteEffects.None, 0f);
         }
@@ -77,7 +83,7 @@ namespace StarshipTycoon {
                 }
             }
 
-            if (!isDocked) {
+            if (!isDocked && fuelRemaining > 0) {
                 move();
             }
         }
@@ -122,26 +128,28 @@ namespace StarshipTycoon {
         }
 
         public void updateAngle() {
-            angle = Math.Atan2(rect.Center.Y - dest.rectangle.Center.Y, rect.Center.X - dest.rectangle.Center.X) + Math.PI / 2;
+            //This HAS to match the values used below in move()
+            angle = Math.Atan2(rect.getDrawingRectangle().Center.Y - dest.getDrawingRectangle().Center.Y, 
+                rect.getDrawingRectangle().Center.X - dest.getDrawingRectangle().Center.X) + Math.PI / 2;
         }
 
         public void move() {
             bool xArrived = false;
             bool yArrived = false;
 
-            rect = new Rectangle((int)x, (int)y, width, height);
+            rect = new RectangleExtension((int)x, (int)y, width, height);
             //TODO: Set once
-            int destX = dest.rectangle.Center.X;
-            int destY = dest.rectangle.Center.Y;
+            double destX = dest.getDrawingRectangle().Center.X;
+            double destY = dest.getDrawingRectangle().Center.Y;
 
-            int centerX = rect.Center.X;
-            int centerY = rect.Center.Y;
+            double centerX = rect.getDrawingRectangle().Center.X;
+            double centerY = rect.getDrawingRectangle().Center.Y;
 
             double xTraveled= 0, yTraveled = 0;
 
             if (centerX != destX) {
                 double normalSpeed = speed * Math.Sin(angle);
-                double leftoverDistance = destX - centerX;
+                double leftoverDistance = (destX - centerX);
 
                 if (Math.Abs(normalSpeed) < Math.Abs(leftoverDistance)) {
                     x -= normalSpeed;
@@ -156,7 +164,7 @@ namespace StarshipTycoon {
 
             if (centerY != destY) {
                 double normalSpeedY = speed * Math.Cos(angle);
-                double leftoverDistanceY = destY - centerY;
+                double leftoverDistanceY = (destY - centerY);
 
                 if (Math.Abs(normalSpeedY) < Math.Abs(leftoverDistanceY)) {
                     y += normalSpeedY;
@@ -182,6 +190,14 @@ namespace StarshipTycoon {
                 dest.timesVisited++;
                 angle = 0;
             }
+        }
+
+        public Rectangle getCollisionRectangle() {
+            return rect.getCollisionRectangle();
+        }
+
+        public Rectangle getDrawingRectangle() {
+            return rect.getDrawingRectangle();
         }
     }
 }

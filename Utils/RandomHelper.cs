@@ -5,7 +5,9 @@ namespace StarshipTycoon.Utils {
         static RandomHelper _Instance;
         public static RandomHelper Instance {
             get {
-                if (_Instance == null) _Instance = new RandomHelper();
+                if (_Instance == null) {
+                    _Instance = new RandomHelper();
+                }
                 return _Instance;
             }
         }

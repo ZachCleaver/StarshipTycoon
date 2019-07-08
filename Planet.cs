@@ -7,19 +7,14 @@ namespace StarshipTycoon {
         private Texture2D texture;
         public MarketPlace market;
         public string name { get; set; }
-        private int x, y, height, width;
         private Color color;
-        public Rectangle rectangle { get; set; }
+        private RectangleExtension rectangle { get; set; }
         public int timesVisited = 0;
         public int fuelCost { get; set; }
 
         public Planet(Texture2D texture, int x, int y, int height, int width, Color color, string name) {
             this.texture = texture;
-            this.x = x;
-            this.y = y;
-            this.height = height;
-            this.width = width;
-            this.rectangle = new Rectangle(x, y, width, height);
+            this.rectangle = new RectangleExtension(x, y, width, height);
             this.color = color;
             this.name = name;
 
@@ -28,7 +23,15 @@ namespace StarshipTycoon {
         }
 
         public void Draw(SpriteBatch sb) {
-            sb.Draw(texture, rectangle, color);
+            sb.Draw(texture, rectangle.getDrawingRectangle(), color);
+        }
+
+        public Rectangle getCollisionRectangle() {
+            return rectangle.getCollisionRectangle();
+        }
+
+        public Rectangle getDrawingRectangle() {
+            return rectangle.getDrawingRectangle();
         }
     }
 }
