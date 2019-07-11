@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using StarshipTycoon.InfoMenus;
 using StarshipTycoon.Players;
 using StarshipTycoon.Utils;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Collections.Generic;
 namespace StarshipTycoon {
     class Player : BasePlayer {
         private InputHandler input = InputHandler.Instance;
-        private HashSet<Ship> displayShipInfo = new HashSet<Ship>();
+        private HashSet<ShipInfo> displayShipInfo = new HashSet<ShipInfo>();
         private List<Ship> shipInfoToRemove = new List<Ship>();
         private Ship shipLookingForDestination = null;
 
@@ -28,7 +29,12 @@ namespace StarshipTycoon {
                 //Additional popup asking them to choose which ship?
                 List<Ship> selectedShips = ships.FindAll(ship => input.rectangle.Intersects(ship.getCollisionRectangle()));
                 selectedShips.ForEach(ship => {
-                    displayShipInfo.Add(ship);
+                    ShipInfo info = new ShipInfo(ship, 
+                        () => { shipInfoToRemove.Add(ship); },
+                        () => { shipLookingForDestination = ship; },
+                        () => { buyFuel(ship); });
+
+                    displayShipInfo.Add(info);
                 });
                 
                 //Player clicked the 'Select Destination' button on ShipInfo
@@ -48,7 +54,7 @@ namespace StarshipTycoon {
             }
 
             shipInfoToRemove.ForEach(ship => {
-                displayShipInfo.Remove(ship);
+                displayShipInfo.RemoveWhere(info => info.ship == ship);
             });
             shipInfoToRemove.Clear();
         }
@@ -74,12 +80,8 @@ namespace StarshipTycoon {
                 DrawUtil.drawLine(sb, shipLookingForDestination.getCollisionRectangle().Center.ToVector2(), input.pos, lineColor);
             }
 
-            foreach (Ship ship in displayShipInfo) {
-                //TODO: Don't make this static. Make it a class and add the actions once...
-                ShipInfo.draw(sb, ship,
-                    () => { shipInfoToRemove.Add(ship); },
-                    () => { shipLookingForDestination = ship; },
-                    () => { buyFuel(ship); });
+            foreach (ShipInfo shipInfo in displayShipInfo) {
+                shipInfo.draw(sb);
             }
         }
 

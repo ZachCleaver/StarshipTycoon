@@ -129,8 +129,8 @@ namespace StarshipTycoon.Utils {
             Vector2 cameraMin = Vector2.Zero;
 
             return Vector2.Clamp(position,
-               new Vector2(ViewportWidth / Zoom / 2, ViewportHeight / Zoom / 2),
-               //cameraMin,
+               //new Vector2(ViewportWidth / Zoom / 2, ViewportHeight / Zoom / 2),
+               cameraMin,
                cameraMax);
         }
 

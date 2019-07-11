@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using StarshipTycoon.InfoMenus;
 using StarshipTycoon.Utils;
 using System;
 using System.Collections.Generic;
@@ -10,16 +11,19 @@ namespace StarshipTycoon {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         SpriteFont font;
-        Random random = new Random();
-
         Texture2D whiteSquare;
+
+        HeaderBar headerBar;
+        InputHandler inputHandler = InputHandler.Instance;
+        Random random = new Random();
 
         Player human = new Player();
         ComputerPlayer ai = new ComputerPlayer();
+
         List<Planet> planets = new List<Planet>();
         int planetSize = 15;
         int planetNum = 12;
-        InputHandler inputHandler = InputHandler.Instance;
+
         bool isPaused = false;
         bool isFullScreen = false;
 
@@ -42,19 +46,25 @@ namespace StarshipTycoon {
             Globals.screenHeight = GraphicsDevice.Viewport.Height;
             Globals.screenWidth = GraphicsDevice.Viewport.Width;
             Globals.camera = new Camera(GraphicsDevice.Viewport);
-            //camera.CenterOn(new Vector2(screenWidth / 2, screenHeight / 2));
+            Globals.camera.CenterOn(new Vector2(Globals.screenWidth / 2, Globals.screenHeight / 2));
 
             for (int i = 0; i < planetNum; i++) {
                 Color randColor = new Color(random.Next(256), random.Next(256), random.Next(256));
-                Planet planet = new Planet(whiteSquare, random.Next(Globals.screenWidth - planetSize), random.Next(Globals.screenHeight - planetSize),
+                Planet planet = new Planet(whiteSquare, 
+                    random.Next(-Globals.screenWidth / 2, Globals.screenWidth * 3 / 2 - planetSize),
+                    //+30 for height of HeaderBar
+                    random.Next(-Globals.screenHeight / 2 + 30, Globals.screenHeight * 3 / 2 - planetSize),
                     planetSize, planetSize, randColor, i.ToString());
                 planets.Add(planet);
             }
 
+            HeaderBar.init(human);
+            headerBar = HeaderBar.Instance;
+
             PlanetUtil.init(ref planets);
             DrawUtil.init(whiteSquare);
 
-            ShipInfo.setTexture(whiteSquare, font);
+            BaseInfo.init(whiteSquare, font);
 
             base.Initialize();
         }
@@ -192,6 +202,7 @@ namespace StarshipTycoon {
 
             spriteBatch.Begin();
             human.drawNoTransform(spriteBatch);
+            headerBar.draw(spriteBatch);
             spriteBatch.End();
 
             base.Draw(gameTime);

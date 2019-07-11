@@ -2,36 +2,35 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace StarshipTycoon {
-    static class ShipInfo {
-        private static InputHandler input;
-        private static Texture2D texture;
-        private static SpriteFont font;
+namespace StarshipTycoon.InfoMenus {
+    class ShipInfo : BaseInfo {
+        public Ship ship { get; private set; }
+        private Action exitAction;
+        private Action setDestinationAction;
+        private Action buyFuelAction;
 
-        public static void setTexture(Texture2D texture, SpriteFont font) {
-            ShipInfo.texture = texture;
-            ShipInfo.font = font;
-            input = InputHandler.Instance;
+        public ShipInfo(Ship ship, Action exitAction, Action setDestinationAction, Action buyFuelAction) {
+            this.ship = ship;
+            this.exitAction = exitAction;
+            this.setDestinationAction = setDestinationAction;
+            this.buyFuelAction = buyFuelAction;
         }
-
-        //TODO: Draw in different position if off screen
+        
         //TODO: Don't make these values in rectangles so hardcoded
-        public static void draw(SpriteBatch sb, Ship ship, Action exitAction, Action setDestinationAction, Action buyFuelAction) {
+        public override void draw(SpriteBatch sb) {
             //int x = ship.getCollisionRectangle().X;
             //int y = ship.getCollisionRectangle().Y;
             int width = 180;
             int height = 100;
             int x = Globals.screenWidth - width;
-            int y = 0;
-
-
+            int y = 30;
 
             sb.Draw(texture, new Rectangle(x, y, width, height), Color.White * 0.5f);
             sb.DrawString(font, "Name: " + ship.name, new Vector2(x + 3, y + 3), Color.Black);
             sb.DrawString(font, "Fuel: " + (int)ship.fuelRemaining + "/" + ship.fuelCapacity, new Vector2(x + 3, y + 20), Color.Black);
 
             //TODO: Give this its own texture so it looks like an 'X'
-            Rectangle exitRec = new Rectangle(x + 150 - 8, y, 8, 8);
+            Rectangle exitRec = new Rectangle(Globals.screenWidth - 8, y, 8, 8);
             sb.Draw(texture, exitRec, Color.White);
 
             Rectangle setDestinationRectangle = new Rectangle(x + 3, y + 40, 140, 20);

@@ -57,15 +57,17 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Globals.cs" />
+    <Compile Include="InfoMenus\BaseInfo.cs" />
+    <Compile Include="InfoMenus\HeaderBar.cs" />
     <Compile Include="InputHandler.cs" />
     <Compile Include="Item.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="MarketPlace.cs" />
     <Compile Include="Planet.cs" />
-    <Compile Include="PlanetInfo.cs" />
+    <Compile Include="InfoMenus\PlanetInfo.cs" />
     <Compile Include="Players\BasePlayer.cs" />
     <Compile Include="Players\Player.cs" />
-    <Compile Include="ShipInfo.cs" />
+    <Compile Include="InfoMenus\ShipInfo.cs" />
     <Compile Include="Utils\Camera.cs" />
     <Compile Include="Utils\DrawUtil.cs" />
     <Compile Include="Utils\ItemUtils.cs" />
