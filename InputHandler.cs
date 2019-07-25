@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace StarshipTycoon {
     /// <summary>
@@ -9,6 +10,8 @@ namespace StarshipTycoon {
     public class InputHandler {
         private static InputHandler instance;
         public Rectangle rectangle { get; set; }
+        public Texture2D mouseTexture { get; set; }
+        public Texture2D tempMouseTexture { get; set; }
 
         private InputHandler() { }
 
@@ -25,8 +28,8 @@ namespace StarshipTycoon {
             }
         }
 
-        MouseState mouse, oldMouse;
-        KeyboardState board, oldBoard;
+        private MouseState mouse, oldMouse;
+        private KeyboardState board, oldBoard;
         public int X, Y;
         public Vector2 pos;
         private bool didMouseMove = false;
@@ -51,6 +54,16 @@ namespace StarshipTycoon {
 
                 Instance.pos = Instance.mouse.Position.ToVector2();
             }
+        }
+
+        public void draw(SpriteBatch sb) {
+            if (tempMouseTexture != null) {
+                sb.Draw(tempMouseTexture, new Rectangle(pos.ToPoint(), new Point(15, 15)), Color.PapayaWhip);
+            } else {
+                sb.Draw(mouseTexture, new Rectangle(pos.ToPoint(), new Point(15, 15)), Color.OrangeRed);
+            }
+
+            tempMouseTexture = null;
         }
 
         /// <summary>

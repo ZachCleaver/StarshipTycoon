@@ -12,20 +12,26 @@ namespace StarshipTycoon {
         SpriteBatch spriteBatch;
         SpriteFont font;
         Texture2D whiteSquare;
+        Texture2D mouseTexture;
 
         HeaderBar headerBar;
-        InputHandler inputHandler = InputHandler.Instance;
+        InputHandler inputHandler;
         Random random = new Random();
 
-        Player human = new Player();
+        Player human;
+        //TODO: Pass in Content to manager and let it load its own textures
+        private Texture2D hoverPlanetErrorText;
+        private Texture2D hoverPlanetSuccessText;
+
         ComputerPlayer ai = new ComputerPlayer();
 
         List<Planet> planets = new List<Planet>();
-        int planetSize = 15;
-        int planetNum = 12;
+        int planetSize = 50;
+        int planetNum = 50;
 
         bool isPaused = false;
         bool isFullScreen = false;
+        private bool shouldShowFourCornerPlanets = true;
 
         public Main() {
             graphics = new GraphicsDeviceManager(this);
@@ -33,7 +39,7 @@ namespace StarshipTycoon {
         }
 
         protected override void Initialize() {
-            this.IsMouseVisible = true;
+            //this.IsMouseVisible = true;
 
             this.graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             this.graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
@@ -41,7 +47,15 @@ namespace StarshipTycoon {
             //graphics.ToggleFullScreen();
 
             whiteSquare = Content.Load<Texture2D>("WhiteSquare");
-            font = Content.Load<SpriteFont>("text");
+            font = Content.Load<SpriteFont>("text"); 
+            
+            inputHandler = InputHandler.Instance;
+            mouseTexture = whiteSquare;
+            inputHandler.mouseTexture = mouseTexture;
+
+            hoverPlanetErrorText = whiteSquare;
+            hoverPlanetSuccessText = whiteSquare;
+            human = new Player(hoverPlanetErrorText, hoverPlanetSuccessText);
 
             Globals.screenHeight = GraphicsDevice.Viewport.Height;
             Globals.screenWidth = GraphicsDevice.Viewport.Width;
@@ -56,6 +70,32 @@ namespace StarshipTycoon {
                     random.Next(-Globals.screenHeight / 2 + 30, Globals.screenHeight * 3 / 2 - planetSize),
                     planetSize, planetSize, randColor, i.ToString());
                 planets.Add(planet);
+            }
+
+            if (shouldShowFourCornerPlanets) {
+                Planet topLeft = new Planet(whiteSquare,
+                    -Globals.screenWidth / 2,
+                    //+30 for height of HeaderBar
+                    -Globals.screenHeight / 2 + 30,
+                    planetSize, planetSize, Color.Black, "Top Left");
+                Planet topRight = new Planet(whiteSquare,
+                     Globals.screenWidth * 3 / 2 - planetSize,
+                    //+30 for height of HeaderBar
+                    -Globals.screenHeight / 2 + 30,
+                    planetSize, planetSize, Color.Black, "Top Right");
+                Planet bottomLeft = new Planet(whiteSquare,
+                    -Globals.screenWidth / 2,
+                    Globals.screenHeight * 3 / 2 - planetSize,
+                    planetSize, planetSize, Color.Black, "Bottom Left");
+                Planet bottomRight = new Planet(whiteSquare,
+                    Globals.screenWidth * 3 / 2 - planetSize,
+                    Globals.screenHeight * 3 / 2 - planetSize,
+                    planetSize, planetSize, Color.Black, "Bottom Right");
+
+                planets.Add(topLeft);
+                planets.Add(topRight);
+                planets.Add(bottomLeft);
+                planets.Add(bottomRight);
             }
 
             HeaderBar.init(human);
@@ -141,7 +181,7 @@ namespace StarshipTycoon {
                 if (inputHandler.wasRightButtonClicked()) {
                     foreach (Planet planet in planets) {
                         if (planet.getCollisionRectangle().Intersects(inputHandler.rectangle)) {
-                            Ship ship = new Ship("Human " + human.ships.Count, whiteSquare, planet, 3, 5, 2, 1000, Color.Black);
+                            Ship ship = new Ship("Human " + human.ships.Count, whiteSquare, planet, 7, 15, 2, 1000, Color.Black);
 
                             human.ships.Add(ship);
                         }
@@ -203,6 +243,7 @@ namespace StarshipTycoon {
             spriteBatch.Begin();
             human.drawNoTransform(spriteBatch);
             headerBar.draw(spriteBatch);
+            inputHandler.draw(spriteBatch);
             spriteBatch.End();
 
             base.Draw(gameTime);

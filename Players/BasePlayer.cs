@@ -6,7 +6,7 @@ namespace StarshipTycoon.Players {
         public List<Ship> ships { get; set; }
         public int money { get; set; }
 
-        public BasePlayer() {
+        protected BasePlayer() {
             ships = new List<Ship>();
             money = 1000;
         }

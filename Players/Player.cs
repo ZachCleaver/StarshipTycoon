@@ -12,6 +12,13 @@ namespace StarshipTycoon {
         private HashSet<ShipInfo> displayShipInfo = new HashSet<ShipInfo>();
         private List<Ship> shipInfoToRemove = new List<Ship>();
         private Ship shipLookingForDestination = null;
+        private Texture2D hoverPlanetErrorText;
+        private Texture2D hoverPlanetSuccessText;
+
+        public Player(Texture2D hoverPlanetErrorText, Texture2D hoverPlanetSuccessText) : base() {
+            this.hoverPlanetErrorText = hoverPlanetErrorText;
+            this.hoverPlanetSuccessText = hoverPlanetSuccessText;
+        }
 
         public override void update() {
             ships.ForEach(ship => {
@@ -65,7 +72,6 @@ namespace StarshipTycoon {
 
         public void drawNoTransform(SpriteBatch sb) {
             //Draw line from ship to mouse
-            //TODO: Add target on mouse if over valid planet, error sign on mouse over invalid planet?
             if (shipLookingForDestination != null) {
                 Color lineColor = Color.Red;
                 Planet hoverPlanet = PlanetUtil.getPlanetMouseHoveringOver();
@@ -73,8 +79,9 @@ namespace StarshipTycoon {
                 if (hoverPlanet != null) {
                     if (PlanetUtil.isPlanetInRange(hoverPlanet, shipLookingForDestination)) {
                         lineColor = Color.Green;
+                        InputHandler.Instance.tempMouseTexture = this.hoverPlanetSuccessText;
                     } else {
-                        //TODO: Change mouse to error
+                        InputHandler.Instance.tempMouseTexture = this.hoverPlanetErrorText;
                     }
                 }
                 DrawUtil.drawLine(sb, shipLookingForDestination.getCollisionRectangle().Center.ToVector2(), input.pos, lineColor);

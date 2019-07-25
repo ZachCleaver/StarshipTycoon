@@ -65,6 +65,8 @@ namespace StarshipTycoon.Utils {
             Zoom += amount;
             if (Zoom < 0.25f) {
                 Zoom = 0.25f;
+            } else if (Zoom > 1.5f) {
+                Zoom = 1.5f;
             }
         }
 
@@ -126,7 +128,8 @@ namespace StarshipTycoon.Utils {
                 ViewportHeight * 2 -
                 (ViewportHeight / Zoom / 2));
 
-            Vector2 cameraMin = Vector2.Zero;
+            //Vector2 cameraMin = Vector2.Zero;
+            Vector2 cameraMin = new Vector2((1 - Zoom) * ViewportWidth / 2, (1 - Zoom) * ViewportHeight / 2);
 
             return Vector2.Clamp(position,
                //new Vector2(ViewportWidth / Zoom / 2, ViewportHeight / Zoom / 2),
@@ -171,7 +174,7 @@ namespace StarshipTycoon.Utils {
             }
 
             // scale our movement to move 25 pixels per second
-            cameraMovement *= cameraMoveSpeed;
+            cameraMovement *= cameraMoveSpeed / Zoom;
 
             MoveCamera(cameraMovement, true);
         }
