@@ -6,7 +6,6 @@ using System.Collections.Generic;
 
 namespace StarshipTycoon {
     class Ship {
-        InputHandler inputHander = InputHandler.Instance;
         private Texture2D texture;
         public String name { get; set; }
         public double x { get; set; }

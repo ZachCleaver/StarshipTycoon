@@ -32,10 +32,10 @@ namespace StarshipTycoon {
         private KeyboardState board, oldBoard;
         public int X, Y;
         public Vector2 pos;
-        private bool didMouseMove = false;
+        public bool didMouseMove { get; private set; }
 
         /// <summary>
-        /// Updates the current state of the mouse.
+        /// Updates the current state of the mouse and keyboard.
         /// </summary>
         public void update() {
             didMouseMove = !(oldMouse.X == mouse.X && oldMouse.Y == mouse.Y);

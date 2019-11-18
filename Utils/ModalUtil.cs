@@ -36,5 +36,11 @@ namespace StarshipTycoon.Utils {
             }
             modalsToRemove.Clear();
         }
+
+        public static void updateModals() {
+            foreach (BaseInfo modal in modals.Values) {
+                modal.update();
+            }
+        }
     }
 }

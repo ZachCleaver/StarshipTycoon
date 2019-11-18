@@ -199,6 +199,7 @@ namespace StarshipTycoon {
 
                 ai.update();
                 human.update();
+                ModalUtil.updateModals();
             }
 
             base.Update(gameTime);
