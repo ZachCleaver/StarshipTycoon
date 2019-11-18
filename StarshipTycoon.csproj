@@ -59,6 +59,7 @@
     <Compile Include="Globals.cs" />
     <Compile Include="InfoMenus\BaseInfo.cs" />
     <Compile Include="InfoMenus\HeaderBar.cs" />
+    <Compile Include="InfoMenus\IShipInfo.cs" />
     <Compile Include="InputHandler.cs" />
     <Compile Include="Item.cs" />
     <Compile Include="Main.cs" />
@@ -71,6 +72,7 @@
     <Compile Include="Utils\Camera.cs" />
     <Compile Include="Utils\DrawUtil.cs" />
     <Compile Include="Utils\ItemUtils.cs" />
+    <Compile Include="Utils\ModalUtil.cs" />
     <Compile Include="Utils\PlanetUtil.cs" />
     <Compile Include="Players\ComputerPlayer.cs" />
     <Compile Include="Program.cs" />

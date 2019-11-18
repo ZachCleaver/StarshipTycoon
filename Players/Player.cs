@@ -9,8 +9,6 @@ using System.Collections.Generic;
 namespace StarshipTycoon {
     class Player : BasePlayer {
         private InputHandler input = InputHandler.Instance;
-        private HashSet<ShipInfo> displayShipInfo = new HashSet<ShipInfo>();
-        private List<Ship> shipInfoToRemove = new List<Ship>();
         private Ship shipLookingForDestination = null;
         private Texture2D hoverPlanetErrorText;
         private Texture2D hoverPlanetSuccessText;
@@ -36,12 +34,11 @@ namespace StarshipTycoon {
                 //Additional popup asking them to choose which ship?
                 List<Ship> selectedShips = ships.FindAll(ship => input.rectangle.Intersects(ship.getCollisionRectangle()));
                 selectedShips.ForEach(ship => {
-                    ShipInfo info = new ShipInfo(ship, 
-                        () => { shipInfoToRemove.Add(ship); },
+                    ShipInfo info = new ShipInfo(ship,
                         () => { shipLookingForDestination = ship; },
                         () => { buyFuel(ship); });
 
-                    displayShipInfo.Add(info);
+                    ModalUtil.addModal(info);
                 });
                 
                 //Player clicked the 'Select Destination' button on ShipInfo
@@ -59,11 +56,6 @@ namespace StarshipTycoon {
                     shipLookingForDestination = null;
                 }
             }
-
-            shipInfoToRemove.ForEach(ship => {
-                displayShipInfo.RemoveWhere(info => info.ship == ship);
-            });
-            shipInfoToRemove.Clear();
         }
 
         public override void draw(SpriteBatch sb) {
@@ -85,10 +77,6 @@ namespace StarshipTycoon {
                     }
                 }
                 DrawUtil.drawLine(sb, shipLookingForDestination.getCollisionRectangle().Center.ToVector2(), input.pos, lineColor);
-            }
-
-            foreach (ShipInfo shipInfo in displayShipInfo) {
-                shipInfo.draw(sb);
             }
         }
 

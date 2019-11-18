@@ -97,12 +97,13 @@ namespace StarshipTycoon {
                 planets.Add(bottomLeft);
                 planets.Add(bottomRight);
             }
-
-            HeaderBar.init(human);
-            headerBar = HeaderBar.Instance;
-
+            
+            ModalUtil.init();
             PlanetUtil.init(ref planets);
             DrawUtil.init(whiteSquare);
+
+            HeaderBar.init(human, whiteSquare, font);
+            headerBar = HeaderBar.Instance;
 
             BaseInfo.init(whiteSquare, font);
 
@@ -237,6 +238,8 @@ namespace StarshipTycoon {
                         spriteBatch.DrawString(font, "Fuel: " + ship.fuelRemaining, ship.getCollisionRectangle().Center.ToVector2(), Color.Black);
                     }
                 });
+
+                ModalUtil.drawModals(spriteBatch);
             }
             spriteBatch.End();
 

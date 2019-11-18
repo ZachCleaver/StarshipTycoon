@@ -1,17 +1,19 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StarshipTycoon.Utils;
 using System;
 
 namespace StarshipTycoon.InfoMenus {
-    class ShipInfo : BaseInfo {
+    class ShipInfo : IShipInfo {
         public Ship ship { get; private set; }
-        private Action exitAction;
         private Action setDestinationAction;
         private Action buyFuelAction;
 
-        public ShipInfo(Ship ship, Action exitAction, Action setDestinationAction, Action buyFuelAction) {
+        //NOTE: This identifier passed to base will have to change if the player is allowed to update the name
+        public ShipInfo(Ship ship, Action setDestinationAction, Action buyFuelAction)
+            : base("ShipInfo_" + ship.name) {
+
             this.ship = ship;
-            this.exitAction = exitAction;
             this.setDestinationAction = setDestinationAction;
             this.buyFuelAction = buyFuelAction;
         }
@@ -55,7 +57,7 @@ namespace StarshipTycoon.InfoMenus {
 
             if (input.wasLeftButtonClicked()) {
                 if (input.rectangle.Intersects(exitRec)) {
-                    exitAction();
+                    ModalUtil.removeModal(id);
                 } else if (input.rectangle.Intersects(setDestinationRectangle)) {
                     setDestinationAction();
                 }
